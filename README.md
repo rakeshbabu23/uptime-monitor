@@ -369,25 +369,14 @@ A URL is considered **up** when the HTTP status code is `200`.
 
 ## 13. Screenshots
 
-Place screenshots in the `screenshots/` folder at the project root (gitignored — copy locally after cloning).
+Screenshots are hosted on Google Drive:
 
-### Dashboard
+**[uptime-monitor — Google Drive](https://drive.google.com/drive/folders/12g3EGFH3qeTRk8hTV02391UHOxmrnUKX?usp=sharing)**
 
-Monitor list with status summary cards.
+The folder consists of two subfolders:
 
-![Dashboard](screenshots/dashboard.png)
-
-### Check history
-
-Paginated health check history for a monitor.
-
-![Check history](screenshots/history.png)
-
-### History filter (Down)
-
-Filtered view when no downtime records exist.
-
-![History down filter](screenshots/history-down-filter.png)
+- **Prompts** — Cursor chat screenshots from the AI collaboration
+- **UI** — Application screenshots (dashboard, history)
 
 ---
 
