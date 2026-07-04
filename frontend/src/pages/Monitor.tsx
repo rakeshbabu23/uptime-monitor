@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { IoAdd, IoGlobeOutline, IoRefresh } from 'react-icons/io5'
 import { useNavigate } from 'react-router-dom'
 import { ChevronRightIcon } from '../components/ChevronRightIcon'
 import { ErrorAlert } from '../components/ErrorAlert'
@@ -115,12 +116,19 @@ function Monitor() {
   const [urlInputs, setUrlInputs] = useState<string[]>([''])
   const [modalError, setModalError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
 
   const upCount = monitors.filter((m) => m.status === 'up').length
   const downCount = monitors.filter((m) => m.status === 'down').length
 
-  const fetchMonitors = useCallback(() => {
-    setLoading(true)
+  const fetchMonitors = useCallback((options?: { silent?: boolean }) => {
+    const silent = options?.silent ?? false
+
+    if (silent) {
+      setRefreshing(true)
+    } else {
+      setLoading(true)
+    }
     setError(null)
 
     return fetch(`${import.meta.env.VITE_API_BASE_URL}/monitors`)
@@ -132,7 +140,13 @@ function Monitor() {
       })
       .then(setMonitors)
       .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false))
+      .finally(() => {
+        if (silent) {
+          setRefreshing(false)
+        } else {
+          setLoading(false)
+        }
+      })
   }, [])
 
   useEffect(() => {
@@ -276,22 +290,25 @@ function Monitor() {
               Know the moment your endpoints go down. Simple, fast, reliable.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={openModal}
-            className="animate-fade-in-up group inline-flex h-11 items-center gap-2 rounded-xl bg-zinc-900 px-5 text-sm font-medium text-white shadow-lg shadow-zinc-900/20 transition duration-300 hover:-translate-y-0.5 hover:bg-zinc-800 hover:shadow-xl hover:shadow-zinc-900/25 active:translate-y-0"
-            style={{ animationDelay: '100ms' }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90"
+          <div className="animate-fade-in-up flex items-center gap-3" style={{ animationDelay: '100ms' }}>
+            <button
+              type="button"
+              onClick={() => fetchMonitors({ silent: true })}
+              disabled={refreshing || loading}
+              className="inline-flex h-11 items-center gap-2 rounded-xl border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-700 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-zinc-300 hover:bg-zinc-50 hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-            </svg>
-            Add URL
-          </button>
+              <IoRefresh className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Refreshing...' : 'Refresh'}
+            </button>
+            <button
+              type="button"
+              onClick={openModal}
+              className="group inline-flex h-11 items-center gap-2 rounded-xl bg-zinc-900 px-5 text-sm font-medium text-white shadow-lg shadow-zinc-900/20 transition duration-300 hover:-translate-y-0.5 hover:bg-zinc-800 hover:shadow-xl hover:shadow-zinc-900/25 active:translate-y-0"
+            >
+              <IoAdd className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
+              Add URL
+            </button>
+          </div>
         </header>
 
         {!loading && monitors.length > 0 && (
@@ -338,16 +355,7 @@ function Monitor() {
                 <td colSpan={5}>
                   <div className="animate-fade-in flex flex-col items-center px-6 py-20 text-center">
                     <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-100 ring-1 ring-indigo-200/60">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        className="h-7 w-7 text-indigo-600"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5a17.92 17.92 0 0 1-8.716-2.247m0 0A8.966 8.966 0 0 1 3 12c0-1.264.26-2.468.732-3.56" />
-                      </svg>
+                      <IoGlobeOutline className="h-7 w-7 text-indigo-600" />
                     </div>
                     <p className="text-base font-semibold text-zinc-900">No monitors yet</p>
                     <p className="mt-2 max-w-xs text-sm text-zinc-500">
@@ -358,9 +366,7 @@ function Monitor() {
                       onClick={openModal}
                       className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 shadow-sm transition duration-300 hover:border-zinc-300 hover:shadow"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-                        <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-                      </svg>
+                      <IoAdd className="h-4 w-4" />
                       Add your first URL
                     </button>
                   </div>
@@ -454,9 +460,7 @@ function Monitor() {
                       className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-200/80 bg-white text-zinc-500 transition duration-200 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 active:scale-95"
                       aria-label="Add another URL"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-                        <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-                      </svg>
+                      <IoAdd className="h-4 w-4" />
                     </button>
                   </div>
                 ))}

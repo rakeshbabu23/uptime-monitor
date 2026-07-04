@@ -65,7 +65,7 @@ Open http://localhost:5173.
    ```
 
 3. Wait up to **1 minute** for the health check job to run.
-4. Confirm the dashboard shows:
+4. Click **Refresh** (top right) and confirm the dashboard shows:
    - Status: **Up** (green)
    - A response time in milliseconds
    - **Last checked** updated
@@ -82,7 +82,7 @@ Open http://localhost:5173.
    (Any unreachable host or non-200 response is fine for testing.)
 
 3. Wait up to **1 minute** for the next health check cycle.
-4. Confirm the dashboard shows:
+4. Click **Refresh** and confirm the dashboard shows:
    - Status: **Down** (red)
    - A high response time or timeout
    - Summary cards update (Up count vs Down count)
